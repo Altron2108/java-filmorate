@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;  // Импортируем исключение
 import ru.yandex.practicum.filmorate.model.Film;
 
 import jakarta.validation.Valid;
@@ -18,6 +19,7 @@ public class FilmController {
 
     private final List<Film> films = new ArrayList<>();
 
+    // Создание фильма
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Film addFilm(@Valid @RequestBody Film film) {
@@ -26,20 +28,27 @@ public class FilmController {
         return film;
     }
 
+    // Обновление фильма
     @PutMapping("/{id}")
     public Film updateFilm(@PathVariable int id, @Valid @RequestBody Film film) {
-        Film existingFilm = films.stream().filter(f -> f.getId() == id).findFirst()
-                .orElseThrow(() -> new RuntimeException("Фильм не найден"));
+        Film existingFilm = films.stream()
+                .filter(f -> f.getId() == id)
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Фильм с ID " + id + " не найден"));
+
         existingFilm.setName(film.getName());
         existingFilm.setDescription(film.getDescription());
         existingFilm.setReleaseDate(film.getReleaseDate());
         existingFilm.setDuration(film.getDuration());
-        log.info("Фильм обновлен: {}", film);
+
+        log.info("Фильм обновлен: {}", existingFilm);
         return existingFilm;
     }
 
+    // Получение всех фильмов
     @GetMapping
     public List<Film> getFilms() {
+        log.info("Запрос на получение всех фильмов");
         return films;
     }
 }
