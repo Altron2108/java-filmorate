@@ -71,13 +71,14 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
-			<!-- Плагин для тестирования с дополнительными параметрами JVM -->
+			<!-- Плагин для тестирования -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.3.1</version>
 				<configuration>
-					<argLine>-XX:+EnableDynamicAgentLoading -JDK.instrument.traceUsage</argLine>
+					<!-- Отключение форк-процесса для тестов -->
+					<forkCount>0</forkCount>
 				</configuration>
 			</plugin>
 		</plugins>
