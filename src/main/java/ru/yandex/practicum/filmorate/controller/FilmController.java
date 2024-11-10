@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;  // Импортируем исключение
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import jakarta.validation.Valid;
@@ -18,11 +18,13 @@ import java.util.ArrayList;
 public class FilmController {
 
     private final List<Film> films = new ArrayList<>();
+    private int currentId = 1;
 
     // Создание фильма
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Film addFilm(@Valid @RequestBody Film film) {
+        film.setId(currentId++);  // Присваиваем уникальный ID для каждого нового фильма
         films.add(film);
         log.info("Фильм добавлен: {}", film);
         return film;
