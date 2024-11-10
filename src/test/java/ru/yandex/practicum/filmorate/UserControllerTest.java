@@ -23,10 +23,6 @@ public class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    public UserControllerTest(MockMvc mockMvc) {
-        this.mockMvc = mockMvc;
-    }
-
     @Test
     void updateUser_shouldReturnStatusOk() throws Exception {
         // Создаем пользователя, которого хотим обновить
