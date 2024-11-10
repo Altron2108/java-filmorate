@@ -20,6 +20,12 @@ public class UserClient {
 
         // Выполняем PUT запрос для обновления пользователя
         String url = "http://localhost:8080/users/1";  // Убедитесь, что ID совпадает
-        restTemplate.put(url, updatedUser);
+        try {
+            // Отправляем PUT-запрос
+            restTemplate.put(url, updatedUser);
+            System.out.println("Пользователь успешно обновлен!");
+        } catch (Exception e) {
+            System.err.println("Ошибка при обновлении пользователя: " + e.getMessage());
+        }
     }
 }
