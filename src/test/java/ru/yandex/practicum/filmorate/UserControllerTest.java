@@ -25,7 +25,8 @@ public class UserControllerTest {
     @Test
     void updateUser_shouldReturnStatusOk() throws Exception {
         // Создаем пользователя, которого будем обновлять
-        String userJson = "{\"login\":\"doloreUpdate\", \"name\":\"est adipisicing\", \"id\":0, \"email\":\"mail@yandex.ru\", \"birthday\":\"1976-09-20\"}";
+        String userJson = "{\"login\":\"doloreUpdate\", \"name\":\"est adipisicing\", " +
+                "\"id\":0, \"email\":\"mail@yandex.ru\", \"birthday\":\"1976-09-20\"}";
 
         // Сначала добавляем пользователя
         mockMvc.perform(post("/users")
@@ -34,7 +35,8 @@ public class UserControllerTest {
                 .andExpect(status().isCreated());
 
         // Обновляем пользователя
-        String updatedUserJson = "{\"login\":\"doloreUpdate\", \"name\":\"Updated Name\", \"id\":0, \"email\":\"updated_email@yandex.ru\", \"birthday\":\"1976-09-20\"}";
+        String updatedUserJson = "{\"login\":\"doloreUpdate\", \"name\":\"Updated Name\", \"id\":0, " +
+                "\"email\":\"updated_email@yandex.ru\", \"birthday\":\"1976-09-20\"}";
 
         // Выполняем обновление пользователя
         mockMvc.perform(put("/users/0")
