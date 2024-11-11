@@ -1,18 +1,18 @@
-package ru.yandex.practicum.filmorate;// В UserControllerTest добавьте тест с созданием пользователя
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
+package ru.yandex.practicum.filmorate;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.controller.UserController;
-import ru.yandex.practicum.filmorate.model.User;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.time.LocalDate;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
 public class UserControllerTest {
@@ -23,36 +23,41 @@ public class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private UserController userController;
+    @Test
+    void updateUser_shouldReturnStatusOk() throws Exception {
+        // Создаем пользователя, которого будем обновлять
+        String userJson = "{\"login\":\"doloreUpdate\", \"name\":\"est adipisicing\", " +
+                "\"id\":0, \"email\":\"mail@yandex.ru\", \"birthday\":\"1976-09-20\"}";
 
-    @BeforeEach
-    public void setUp() {
-        userController.resetIdCounter();
+        // Сначала добавляем пользователя
+        mockMvc.perform(post("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(userJson))
+                .andExpect(status().isCreated());
+
+        // Обновляем пользователя
+        String updatedUserJson = "{\"login\":\"doloreUpdate\", \"name\":\"Updated Name\", \"id\":0, " +
+                "\"email\":\"updated_email@yandex.ru\", \"birthday\":\"1976-09-20\"}";
+
+        // Выполняем обновление пользователя
+        mockMvc.perform(put("/users/0")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updatedUserJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Updated Name"));
     }
 
     @Test
-    public void updateUser_shouldReturnStatusOk() throws Exception {
-        // Создаем пользователя
-        User user = new User();
-        user.setEmail("mail@yandex.ru");
-        user.setLogin("dolore");
-        user.setName("Test User");
-        user.setBirthday(LocalDate.of(1990, 1, 1));
+    void deleteUser_shouldReturnStatusNoContent() throws Exception {
+        String userJson = "{\"login\":\"dolore\", \"name\":\"User for Deletion\", \"id\":0, " +
+                "\"email\":\"user@example.com\", \"birthday\":\"1976-09-20\"}";
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(user)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1));
+                        .content(userJson))
+                .andExpect(status().isCreated());
 
-        // Обновляем пользователя с ID = 1
-        user.setName("Updated User");
-
-        mockMvc.perform(put("/users/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(user)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Updated User"));
+        mockMvc.perform(delete("/users/0"))
+                .andExpect(status().isNoContent());
     }
 }

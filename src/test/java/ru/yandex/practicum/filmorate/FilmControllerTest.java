@@ -29,44 +29,53 @@ public class FilmControllerTest {
 
     @BeforeEach
     public void setUp() {
-        filmController.resetData();  // Сброс состояния перед каждым тестом
+        // Сброс данных перед каждым тестом
+        filmController.resetData();
     }
 
     @Test
     public void shouldAddFilmSuccessfully() throws Exception {
+        // Создание объекта Film для добавления
         Film film = new Film();
         film.setName("Test Film");
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2023, 1, 1));
         film.setDuration(120);
 
+        // Проверяем добавление фильма
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(film)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1));
+                .andExpect(status().isCreated()) // Ожидаем статус 201
+                .andExpect(jsonPath("$.id").value(1)) // Проверяем, что ID фильма равен 1
+                .andExpect(jsonPath("$.name").value("Test Film")); // Проверяем имя фильма
     }
 
     @Test
     public void shouldUpdateFilmSuccessfully() throws Exception {
+        // Создание объекта Film для добавления
         Film film = new Film();
         film.setName("Test Film");
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2023, 1, 1));
         film.setDuration(120);
 
+        // Сначала добавляем фильм
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(film)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1));
+                .andExpect(status().isCreated())  // Проверяем, что фильм добавлен
+                .andExpect(jsonPath("$.id").value(1)) // Проверяем, что присвоен ID = 1
+                .andExpect(jsonPath("$.name").value("Test Film")); // Проверяем имя фильма
 
+        // Теперь обновляем фильм
         film.setName("Updated Film");
 
+        // Выполняем запрос PUT для обновления
         mockMvc.perform(put("/films/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(film)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Updated Film"));
+                .andExpect(status().isOk()) // Проверяем, что обновление прошло успешно
+                .andExpect(jsonPath("$.name").value("Updated Film")); // Проверяем новое имя
     }
 }

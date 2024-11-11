@@ -18,7 +18,7 @@ import java.util.ArrayList;
 public class FilmController {
 
     private final List<Film> films = new ArrayList<>();
-    public int currentId = 1;
+    private int currentId = 1;
 
     // Создание фильма
     @PostMapping
@@ -47,6 +47,18 @@ public class FilmController {
         return existingFilm;
     }
 
+    // Удаление фильма
+    @DeleteMapping("/{id}")
+    public void deleteFilm(@PathVariable int id) {
+        Film existingFilm = films.stream()
+                .filter(f -> f.getId() == id)
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Фильм с ID " + id + " не найден"));
+
+        films.remove(existingFilm);
+        log.info("Фильм с ID {} удален", id);
+    }
+
     // Получение всех фильмов
     @GetMapping
     public List<Film> getFilms() {
@@ -54,9 +66,9 @@ public class FilmController {
         return films;
     }
 
-    // Сброс состояния контроллера (для тестов)
+    // Сброс состояния (для тестов)
     public void resetData() {
-        currentId = 1;
         films.clear();
+        currentId = 1;
     }
 }

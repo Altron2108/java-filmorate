@@ -18,13 +18,13 @@ import java.util.ArrayList;
 public class UserController {
 
     private final List<User> users = new ArrayList<>();
-    public int currentId = 1;
+    private int currentId = 1;
 
     // Создание пользователя
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public User createUser(@Valid @RequestBody User user) {
-        user.setId(currentId++); // Устанавливаем ID для нового пользователя
+        user.setId(currentId++);
         users.add(user);
         log.info("Пользователь создан: {}", user);
         return user;
@@ -47,16 +47,22 @@ public class UserController {
         return existingUser;
     }
 
+    // Удаление пользователя
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable int id) {
+        User existingUser = users.stream()
+                .filter(u -> u.getId() == id)
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь с ID " + id + " не найден"));
+
+        users.remove(existingUser);
+        log.info("Пользователь с ID {} удален", id);
+    }
+
     // Получение всех пользователей
     @GetMapping
     public List<User> getUsers() {
         log.info("Запрос на получение всех пользователей");
         return users;
-    }
-
-    // Метод для сброса ID (только для тестов)
-    public void resetIdCounter() {
-        currentId = 1;
-        users.clear(); // очищаем список пользователей для консистентного состояния перед каждым тестом
     }
 }
