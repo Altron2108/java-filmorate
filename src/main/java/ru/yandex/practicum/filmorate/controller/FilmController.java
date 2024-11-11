@@ -18,7 +18,7 @@ import java.util.ArrayList;
 public class FilmController {
 
     private final List<Film> films = new ArrayList<>();
-    private int currentId = 1;
+    public int currentId = 1;
 
     // Создание фильма
     @PostMapping

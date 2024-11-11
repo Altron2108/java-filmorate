@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -23,10 +24,18 @@ public class FilmControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private FilmController filmController;
+
+    @BeforeEach
+    public void setUp() {
+        filmController.getFilms().clear();
+        filmController.currentId = 1;  // Сбросим ID
+    }
+
     @Test
     public void shouldAddFilmSuccessfully() throws Exception {
         Film film = new Film();
-        film.setId(1);
         film.setName("Test Film");
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2023, 1, 1));
@@ -42,7 +51,6 @@ public class FilmControllerTest {
     @Test
     public void shouldUpdateFilmSuccessfully() throws Exception {
         Film film = new Film();
-        film.setId(1);
         film.setName("Test Film");
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2023, 1, 1));

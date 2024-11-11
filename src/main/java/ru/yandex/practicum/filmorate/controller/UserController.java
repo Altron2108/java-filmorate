@@ -18,7 +18,7 @@ import java.util.ArrayList;
 public class UserController {
 
     private final List<User> users = new ArrayList<>();
-    private int currentId = 1;
+    public int currentId = 1;
 
     // Создание пользователя
     @PostMapping
@@ -52,5 +52,11 @@ public class UserController {
     public List<User> getUsers() {
         log.info("Запрос на получение всех пользователей");
         return users;
+    }
+
+    // Метод для сброса ID (только для тестов)
+    public void resetIdCounter() {
+        currentId = 1;
+        users.clear(); // очищаем список пользователей для консистентного состояния перед каждым тестом
     }
 }
