@@ -1,12 +1,16 @@
 package ru.yandex.practicum.filmorate;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.yandex.practicum.filmorate.controller.UserController;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ru.yandex.practicum.filmorate.controller.UserController;
+import ru.yandex.practicum.filmorate.model.User;
+
+import java.time.LocalDate;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -14,8 +18,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(UserController.class)
-public class UserControllerTest {
+@Nested
+@WebMvcTest(UserController.class)  // Тестируем только UserController
+class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -23,41 +28,68 @@ public class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    // Тест на создание пользователя
     @Test
-    void updateUser_shouldReturnStatusOk() throws Exception {
-        // Создаем пользователя, которого будем обновлять
-        String userJson = "{\"login\":\"doloreUpdate\", \"name\":\"est adipisicing\", " +
-                "\"id\":0, \"email\":\"mail@yandex.ru\", \"birthday\":\"1976-09-20\"}";
+    public void createUser_shouldReturnStatusCreated() throws Exception {
+        User user = new User();
+        user.setLogin("johndoe");
+        user.setEmail("john.doe@example.com");
+        user.setName("John Doe");
+        user.setBirthday(LocalDate.of(1990, 1, 1));
 
-        // Сначала добавляем пользователя
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(userJson))
-                .andExpect(status().isCreated());
-
-        // Обновляем пользователя
-        String updatedUserJson = "{\"login\":\"doloreUpdate\", \"name\":\"Updated Name\", \"id\":0, " +
-                "\"email\":\"updated_email@yandex.ru\", \"birthday\":\"1976-09-20\"}";
-
-        // Выполняем обновление пользователя
-        mockMvc.perform(put("/users/0")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(updatedUserJson))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Updated Name"));
+                        .content(objectMapper.writeValueAsString(user)))
+                .andExpect(status().isCreated())  // Ожидаем статус 201
+                .andExpect(jsonPath("$.id").value(1))  // Проверка id
+                .andExpect(jsonPath("$.name").value("John Doe"));  // Проверка имени
     }
 
+    // Тест на обновление пользователя
     @Test
-    void deleteUser_shouldReturnStatusNoContent() throws Exception {
-        String userJson = "{\"login\":\"dolore\", \"name\":\"User for Deletion\", \"id\":0, " +
-                "\"email\":\"user@example.com\", \"birthday\":\"1976-09-20\"}";
+    public void updateUser_shouldReturnStatusOk() throws Exception {
+        User user = new User();
+        user.setLogin("johndoe");
+        user.setEmail("john.doe@example.com");
+        user.setName("John Doe");
+        user.setBirthday(LocalDate.of(1990, 1, 1));
 
+        // Создаем пользователя
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(userJson))
+                        .content(objectMapper.writeValueAsString(user)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("John Doe"));
+
+        // Обновляем пользователя
+        user.setName("Updated John Doe");
+
+        mockMvc.perform(put("/users/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(user)))
+                .andExpect(status().isOk()) // Ожидаем статус 200
+                .andExpect(jsonPath("$.name").value("Updated John Doe"));
+    }
+
+    // Тест на удаление пользователя
+    @Test
+    public void deleteUser_shouldReturnStatusNoContent() throws Exception {
+        User user = new User();
+        user.setLogin("johndoe");
+        user.setEmail("john.doe@example.com");
+        user.setName("John Doe");
+        user.setBirthday(LocalDate.of(1990, 1, 1));
+
+        // Создаем пользователя
+        mockMvc.perform(post("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(user)))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(delete("/users/0"))
-                .andExpect(status().isNoContent());
+        // Удаляем пользователя
+        mockMvc.perform(delete("/users/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent()); // Ожидаем статус 204
     }
 }
