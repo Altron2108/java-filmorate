@@ -1,43 +1,25 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
-import lombok.Getter;
-import lombok.Setter;
-
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 
-@Setter
-@Getter
+@Data
 public class Film {
-
     private int id;
 
-    @NotBlank(message = "Имя фильма не должно быть пустым.")
+    @NotEmpty(message = "Название не может быть пустым.")
     private String name;
 
-    @NotBlank(message = "Описание фильма не должно быть пустым.")
+    @Size(max = 200, message = "Максимальная длина описания — 200 символов.")
     private String description;
 
-    @NotNull(message = "Дата выпуска не может быть пустой.")
-    @PastOrPresent(message = "Дата выпуска должна быть в прошлом или настоящем.")
+    @PastOrPresent(message = "Дата релиза не может быть в будущем.")
     private LocalDate releaseDate;
 
-    @Positive(message = "Продолжительность должна быть положительной.")
+    @Positive(message = "Продолжительность фильма должна быть положительным числом.")
     private int duration;
-
-    // Геттеры и сеттеры
-
-    @Override
-    public String toString() {
-        return "Film{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", releaseDate=" + releaseDate +
-                ", duration=" + duration +
-                '}';
-    }
 }
