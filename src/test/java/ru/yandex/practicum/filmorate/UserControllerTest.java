@@ -24,27 +24,28 @@ public class UserControllerTest {
 
     @Test
     void updateUser_shouldReturnStatusOk() throws Exception {
-        // Создаем пользователя, которого будем обновлять
+        // Создаем JSON строку для начального пользователя
         String userJson = "{\"login\":\"doloreUpdate\", \"name\":\"est adipisicing\", " +
                 "\"id\":0, \"email\":\"mail@yandex.ru\", \"birthday\":\"1976-09-20\"}";
 
-        // Сначала добавляем пользователя
+        // Добавляем пользователя через POST запрос
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(userJson))
                 .andExpect(status().isCreated());
 
-        // Обновляем пользователя
+        // Подготавливаем JSON для обновленного пользователя
         String updatedUserJson = "{\"login\":\"doloreUpdate\", \"name\":\"Updated Name\", \"id\":0, " +
                 "\"email\":\"updated_email@yandex.ru\", \"birthday\":\"1976-09-20\"}";
 
-        // Выполняем обновление пользователя
+        // Отправляем PUT запрос для обновления пользователя
         mockMvc.perform(put("/users/0")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updatedUserJson))
-                .andExpect(status().isOk())
+                .andExpect(status().isOk()) // Проверяем, что статус ответа - OK
                 .andExpect(jsonPath("$.name").value("Updated Name"))
+                // Проверка обновленного имени
                 .andExpect(jsonPath("$.email").value("updated_email@yandex.ru"));
+        // Проверка обновленного email
     }
-
 }
