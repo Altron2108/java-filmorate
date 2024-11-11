@@ -19,7 +19,6 @@ public class UserController {
 
     private final List<User> users = new ArrayList<>();
 
-    // Создание пользователя
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public User createUser(@Valid @RequestBody User user) {
@@ -28,7 +27,6 @@ public class UserController {
         return user;
     }
 
-    // Обновление пользователя
     @PutMapping("/{id}")
     public User updateUser(@PathVariable int id, @Valid @RequestBody User user) {
         User existingUser = users.stream()
@@ -45,7 +43,6 @@ public class UserController {
         return existingUser;
     }
 
-    // Получение всех пользователей
     @GetMapping
     public List<User> getUsers() {
         log.info("Запрос на получение всех пользователей");
