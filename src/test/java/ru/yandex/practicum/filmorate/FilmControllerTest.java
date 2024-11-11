@@ -29,8 +29,7 @@ public class FilmControllerTest {
 
     @BeforeEach
     public void setUp() {
-        filmController.getFilms().clear();
-        filmController.currentId = 1;  // Сбросим ID
+        filmController.resetData();  // Сброс состояния перед каждым тестом
     }
 
     @Test

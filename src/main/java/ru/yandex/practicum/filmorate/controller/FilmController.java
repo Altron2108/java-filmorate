@@ -53,4 +53,10 @@ public class FilmController {
         log.info("Запрос на получение всех фильмов");
         return films;
     }
+
+    // Сброс состояния контроллера (для тестов)
+    public void resetData() {
+        currentId = 1;
+        films.clear();
+    }
 }
