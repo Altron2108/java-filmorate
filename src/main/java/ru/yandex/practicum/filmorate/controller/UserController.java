@@ -49,13 +49,13 @@ public class UserController {
 
     // Удаление пользователя
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable int id) {
-        User existingUser = users.stream()
+        User userToDelete = users.stream()
                 .filter(u -> u.getId() == id)
                 .findFirst()
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь с ID " + id + " не найден"));
-
-        users.remove(existingUser);
+        users.remove(userToDelete);
         log.info("Пользователь с ID {} удален", id);
     }
 
