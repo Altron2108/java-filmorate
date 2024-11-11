@@ -20,15 +20,17 @@ public class FilmController {
     private final List<Film> films = new ArrayList<>();
     private int currentId = 1;
 
+    // Создание фильма
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Film addFilm(@Valid @RequestBody Film film) {
-        film.setId(currentId++);
+        film.setId(currentId++);  // Присваиваем уникальный ID для каждого нового фильма
         films.add(film);
         log.info("Фильм добавлен: {}", film);
         return film;
     }
 
+    // Обновление фильма
     @PutMapping("/{id}")
     public Film updateFilm(@PathVariable int id, @Valid @RequestBody Film film) {
         Film existingFilm = films.stream()
@@ -45,6 +47,7 @@ public class FilmController {
         return existingFilm;
     }
 
+    // Получение всех фильмов
     @GetMapping
     public List<Film> getFilms() {
         log.info("Запрос на получение всех фильмов");

@@ -18,15 +18,19 @@ import java.util.ArrayList;
 public class UserController {
 
     private final List<User> users = new ArrayList<>();
+    private int currentId = 1;
 
+    // Создание пользователя
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public User createUser(@Valid @RequestBody User user) {
+        user.setId(currentId++); // Устанавливаем ID для нового пользователя
         users.add(user);
         log.info("Пользователь создан: {}", user);
         return user;
     }
 
+    // Обновление пользователя
     @PutMapping("/{id}")
     public User updateUser(@PathVariable int id, @Valid @RequestBody User user) {
         User existingUser = users.stream()
@@ -43,6 +47,7 @@ public class UserController {
         return existingUser;
     }
 
+    // Получение всех пользователей
     @GetMapping
     public List<User> getUsers() {
         log.info("Запрос на получение всех пользователей");

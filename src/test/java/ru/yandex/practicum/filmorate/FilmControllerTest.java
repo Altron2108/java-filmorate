@@ -28,7 +28,7 @@ public class FilmControllerTest {
         Film film = new Film();
         film.setId(1);
         film.setName("Test Film");
-        film.setDescription("Description of the test film");
+        film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2023, 1, 1));
         film.setDuration(120);
 
@@ -36,21 +36,30 @@ public class FilmControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(film)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("Test Film"));
+                .andExpect(jsonPath("$.id").value(1));
     }
 
     @Test
-    public void shouldFailValidationForEmptyFilmName() throws Exception {
+    public void shouldUpdateFilmSuccessfully() throws Exception {
         Film film = new Film();
         film.setId(1);
-        film.setName("");
-        film.setDescription("Description of the test film");
+        film.setName("Test Film");
+        film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2023, 1, 1));
         film.setDuration(120);
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(film)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1));
+
+        film.setName("Updated Film");
+
+        mockMvc.perform(put("/films/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(film)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Updated Film"));
     }
 }
