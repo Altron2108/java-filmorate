@@ -14,7 +14,7 @@ public class UserService {
     private final AtomicInteger idCounter = new AtomicInteger(1);
     private final List<User> users = new ArrayList<>();
 
-    public User createUser(User user) { // Возвращает User без Optional
+    public User createUser(User user) {
         user.setId(idCounter.getAndIncrement());
         users.add(user);
         return user;

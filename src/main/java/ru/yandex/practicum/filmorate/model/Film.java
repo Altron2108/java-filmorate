@@ -23,4 +23,11 @@ public class Film {
 
     @Positive(message = "Продолжительность фильма должна быть положительным числом.")
     private int duration;
+
+    public void resetData() {
+        this.name = null;
+        this.description = null;
+        this.releaseDate = null;
+        this.duration = 0;
+    }
 }
