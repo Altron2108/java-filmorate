@@ -23,7 +23,8 @@ public class User {
     private LocalDate birthday;
 
     // Пустой конструктор
-    public User() {}
+    public User() {
+    }
 
     // Конструктор с параметрами
     public User(String email, String login, String name, LocalDate birthday) {
