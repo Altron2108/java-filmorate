@@ -24,7 +24,7 @@ public class UserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public User createUser(@Valid @RequestBody User user) {
-        return userService.createUser(user);
+        return userService.createUser(user); // Теперь возвращает User
     }
 
     @GetMapping("/{id}")
