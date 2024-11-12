@@ -60,6 +60,15 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.error").value("Пользователь с ID 1 не найден"));
     }
 
+    @Test
+    public void whenInvalidInput_thenReturnsStatus400() throws Exception {
+        mockMvc.perform(post("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"login\": \"\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Ошибка валидации данных"))
+                .andExpect(jsonPath("$.details").isArray());
+    }
 
     @Test
     void getUser_shouldReturnUserWhenUserExists() throws Exception {
