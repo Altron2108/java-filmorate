@@ -112,7 +112,7 @@ public class FilmControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(film)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$").value("Фильм с ID 99 не найден"));
+                .andExpect(jsonPath("$.error").value("Фильм с ID 99 не найден"));
     }
 
     @Test
@@ -153,6 +153,6 @@ public class FilmControllerTest {
     public void shouldReturnNotFoundWhenDeletingNonexistentFilm() throws Exception {
         mockMvc.perform(delete("/films/99"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$").value("Фильм с ID 99 не найден"));
+                .andExpect(jsonPath("$.error").value("Фильм с ID 99 не найден"));
     }
 }
