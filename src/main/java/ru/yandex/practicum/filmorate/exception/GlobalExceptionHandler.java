@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.exception;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -13,13 +15,15 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Обработка исключений типа ResponseStatusException
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<Object> handleResponseStatusException(ResponseStatusException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", ex.getStatusCode().value());
-        response.put("error", ex.getReason());
-        return new ResponseEntity<>(response, ex.getStatusCode());
+    public ResponseEntity<Map<String, Object>> handleResponseStatusException(ResponseStatusException ex) {
+        logger.error("Ошибка: {}", ex.getReason());
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("status", ex.getStatusCode().value());
+        errorResponse.put("error", ex.getReason());
+        return new ResponseEntity<>(errorResponse, ex.getStatusCode());
     }
 
     // Обработка исключений типа RuntimeException
