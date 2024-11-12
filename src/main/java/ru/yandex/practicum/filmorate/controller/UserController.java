@@ -30,13 +30,15 @@ public class UserController {
     @GetMapping("/{id}")
     public User getUser(@PathVariable int id) {
         return userService.getUserById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с ID " + id + " не найден"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Пользователь с ID " + id + " не найден"));
     }
 
     @PutMapping("/{id}")
     public User updateUser(@PathVariable int id, @Valid @RequestBody User user) {
         return userService.updateUser(id, user)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с ID " + id + " не найден"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Пользователь с ID " + id + " не найден"));
     }
 
     @DeleteMapping("/{id}")
