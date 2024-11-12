@@ -7,11 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
 
+import static org.assertj.core.api.Fail.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -78,4 +80,72 @@ public class FilmControllerTest {
                 .andExpect(status().isOk()) // Проверяем, что обновление прошло успешно
                 .andExpect(jsonPath("$.name").value("Updated Film")); // Проверяем новое имя
     }
+
+    @Test
+    public void shouldReturnNotFoundWhenUpdatingNonexistentFilm() {
+        Film film = new Film();
+        film.setName("Updated Film");
+        film.setDescription("Updated Description");
+        film.setReleaseDate(LocalDate.of(2023, 2, 2));
+        film.setDuration(130);
+
+        try {
+            mockMvc.perform(put("/films/99")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(film)))
+                    .andExpect(status().isNotFound())
+                    .andExpect(content().string("Фильм с ID 99 не найден"));
+            // Обновлено для соответствия фактическому сообщению
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Test failed due to an unexpected exception: " + e.getMessage());
+        }
+    }
+
+
+    @Test
+    public void shouldDeleteFilmSuccessfully() {
+        Film film = new Film();
+        film.setName("Film To Delete");
+        film.setDescription("Description of Film to Delete");
+        film.setReleaseDate(LocalDate.of(2023, 1, 1));
+        film.setDuration(110);
+
+        try {
+            // Сначала добавляем фильм и получаем его ID
+            MvcResult result = mockMvc.perform(post("/films")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(film)))
+                    .andExpect(status().isCreated())
+                    .andReturn();
+
+            String responseContent = result.getResponse().getContentAsString();
+            Film createdFilm = objectMapper.readValue(responseContent, Film.class);
+            long filmId = createdFilm.getId(); // Используем ID из ответа
+
+            // Удаляем фильм с полученным ID
+            mockMvc.perform(delete("/films/" + filmId))
+                    .andExpect(status().isNoContent());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Test failed due to an unexpected exception: " + e.getMessage());
+        }
+    }
+
+
+    @Test
+    public void shouldReturnNotFoundWhenDeletingNonexistentFilm() {
+        try {
+            mockMvc.perform(delete("/films/99"))
+                    .andExpect(status().isNotFound())
+                    .andExpect(content().string("Фильм с ID 99 не найден"));
+            // Обновлено для соответствия фактическому сообщению
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Test failed due to an unexpected exception: " + e.getMessage());
+        }
+    }
+
 }
+

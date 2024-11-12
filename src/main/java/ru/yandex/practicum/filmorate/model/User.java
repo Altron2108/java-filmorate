@@ -21,4 +21,15 @@ public class User {
 
     @Past(message = "Дата рождения должна быть в прошлом")
     private LocalDate birthday;
+
+    // Пустой конструктор
+    public User() {}
+
+    // Конструктор с параметрами
+    public User(String email, String login, String name, LocalDate birthday) {
+        this.email = email;
+        this.login = login;
+        this.name = name;
+        this.birthday = birthday;
+    }
 }

@@ -49,6 +49,7 @@ public class FilmController {
 
     // Удаление фильма
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)  // Возвращает статус 204
     public void deleteFilm(@PathVariable int id) {
         Film existingFilm = films.stream()
                 .filter(f -> f.getId() == id)

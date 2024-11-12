@@ -1,68 +1,54 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
+import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/users")
-@Validated
-@Slf4j
 public class UserController {
 
-    private final List<User> users = new ArrayList<>();
-    private int currentId = 1;
+    private final UserService userService;
 
-    // Создание пользователя
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public User createUser(@Valid @RequestBody User user) {
-        user.setId(currentId++);
-        users.add(user);
-        log.info("Пользователь создан: {}", user);
-        return user;
+        return userService.createUser(user);
     }
 
-    // Обновление пользователя
+    @GetMapping("/{id}")
+    public User getUser(@PathVariable int id) {
+        return userService.getUserById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с ID " + id + " не найден"));
+    }
+
     @PutMapping("/{id}")
     public User updateUser(@PathVariable int id, @Valid @RequestBody User user) {
-        User existingUser = users.stream()
-                .filter(u -> u.getId() == id)
-                .findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь с ID " + id + " не найден"));
-
-        existingUser.setEmail(user.getEmail());
-        existingUser.setLogin(user.getLogin());
-        existingUser.setName(user.getName());
-        existingUser.setBirthday(user.getBirthday());
-
-        log.info("Пользователь обновлен: {}", existingUser);
-        return existingUser;
+        return userService.updateUser(id, user)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с ID " + id + " не найден"));
     }
 
-    // Удаление пользователя
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable int id) {
-        User userToDelete = users.stream()
-                .filter(u -> u.getId() == id)
-                .findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь с ID " + id + " не найден"));
-        users.remove(userToDelete);
-        log.info("Пользователь с ID {} удален", id);
+        if (!userService.deleteUser(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с ID " + id + " не найден");
+        }
     }
 
-    // Получение всех пользователей
     @GetMapping
-    public List<User> getUsers() {
-        log.info("Запрос на получение всех пользователей");
-        return users;
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
     }
 }
