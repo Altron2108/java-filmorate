@@ -39,24 +39,12 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable int id, @Valid @RequestBody User user) {
+        user.setId(id); // Устанавливаем ID пользователя
         Optional<User> updatedUser = userService.updateUser(id, user);
         return updatedUser.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Пользователь с ID " + id + " не найден"));
     }
-
-    @PutMapping("/{id}/reset")
-    public ResponseEntity<User> resetUserData(@PathVariable int id) {
-        Optional<User> user = userService.getUserById(id);
-        return user.map(u -> {
-                    u.resetData(); // Сброс данных пользователя
-                    userService.updateUser(id, u); // Обновление данных в хранилище
-                    return new ResponseEntity<>(u, HttpStatus.OK);
-                })
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Пользователь с ID " + id + " не найден"));
-    }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable int id) {

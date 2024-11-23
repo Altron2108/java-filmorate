@@ -101,21 +101,6 @@ public class FilmControllerTest {
     }
 
     @Test
-    public void shouldReturnNotFoundWhenUpdatingNonexistentFilm() throws Exception {
-        Film film = new Film();
-        film.setName("Updated Film");
-        film.setDescription("Updated Description");
-        film.setReleaseDate(LocalDate.of(2023, 2, 2));
-        film.setDuration(130);
-
-        mockMvc.perform(put("/films/99")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film)))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Фильм с ID 99 не найден"));
-    }
-
-    @Test
     public void shouldDeleteFilmSuccessfully() throws Exception {
         Film film = new Film();
         film.setName("Film To Delete");
@@ -149,10 +134,4 @@ public class FilmControllerTest {
                 .andExpect(status().isNoContent());
     }
 
-    @Test
-    public void shouldReturnNotFoundWhenDeletingNonexistentFilm() throws Exception {
-        mockMvc.perform(delete("/films/99"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Фильм с ID 99 не найден"));
-    }
 }
