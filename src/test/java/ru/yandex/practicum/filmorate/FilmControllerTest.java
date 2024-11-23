@@ -8,19 +8,17 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(FilmController.class)
 public class FilmControllerTest {
@@ -34,104 +32,97 @@ public class FilmControllerTest {
     @MockBean
     private FilmService filmService;
 
+    private Film testFilm;
+
     @BeforeEach
     public void setUp() {
-        reset(filmService); // Сбрасываем состояние мока FilmService перед каждым тестом
+        reset(filmService); // Сбрасываем состояние мока
+        testFilm = new Film();
+        testFilm.setId(1);
+        testFilm.setName("Test Film");
+        testFilm.setDescription("Test Description");
+        testFilm.setReleaseDate(LocalDate.of(2023, 1, 1));
+        testFilm.setDuration(120);
     }
 
     @Test
     public void shouldAddFilmSuccessfully() throws Exception {
-        Film film = new Film();
-        film.setId(1); // Устанавливаем id
-        film.setName("Test Film");
-        film.setDescription("Test Description");
-        film.setReleaseDate(LocalDate.of(2023, 1, 1));
-        film.setDuration(120);
-
-        // Настраиваем поведение мока FilmService
-        when(filmService.createFilm(film)).thenReturn(film);
+        when(filmService.createFilm(any(Film.class))).thenReturn(testFilm);
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film)))
+                        .content(objectMapper.writeValueAsString(testFilm)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("Test Film")) // Проверка поля name
-                .andExpect(jsonPath("$.id").value(1)); // Проверка поля id
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Test Film"));
+
+        verify(filmService, times(1)).createFilm(any(Film.class));
     }
 
     @Test
     public void shouldUpdateFilmSuccessfully() throws Exception {
-        Film film = new Film();
-        film.setId(1); // Устанавливаем начальный id
-        film.setName("Test Film");
-        film.setDescription("Test Description");
-        film.setReleaseDate(LocalDate.of(2023, 1, 1));
-        film.setDuration(120);
+        testFilm.setName("Updated Film");
+        when(filmService.updateFilm(eq(1), any(Film.class))).thenReturn(Optional.of(testFilm));
 
-        // Настраиваем поведение мока для метода createFilm
-        when(filmService.createFilm(any(Film.class))).thenAnswer(invocation -> {
-            Film savedFilm = invocation.getArgument(0);
-            savedFilm.setId(1); // Присваиваем ID для фильма
-            return savedFilm;
-        });
-
-        // Выполняем запрос на создание фильма и получаем его id
-        MvcResult result = mockMvc.perform(post("/films")
+        mockMvc.perform(put("/films/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film)))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        String responseContent = result.getResponse().getContentAsString();
-        Film createdFilm = objectMapper.readValue(responseContent, Film.class);
-        int filmId = createdFilm.getId();
-
-        // Обновляем название фильма
-        film.setName("Updated Film");
-
-        // Настраиваем мок для updateFilm
-        when(filmService.updateFilm(filmId, film)).thenReturn(java.util.Optional.of(film));
-
-        // Выполняем запрос на обновление фильма
-        mockMvc.perform(put("/films/" + filmId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film)))
+                        .content(objectMapper.writeValueAsString(testFilm)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Updated Film"));
+
+        verify(filmService, times(1)).updateFilm(eq(1), any(Film.class));
     }
 
     @Test
     public void shouldDeleteFilmSuccessfully() throws Exception {
-        Film film = new Film();
-        film.setName("Film To Delete");
-        film.setDescription("Description of Film to Delete");
-        film.setReleaseDate(LocalDate.of(2023, 1, 1));
-        film.setDuration(110);
+        when(filmService.deleteFilm(1)).thenReturn(true);
 
-        // Настройка мока для метода createFilm, чтобы он возвращал фильм с ID 1
-        when(filmService.createFilm(any(Film.class))).thenAnswer(invocation -> {
-            Film savedFilm = invocation.getArgument(0);
-            savedFilm.setId(1); // Присваиваем ID для фильма
-            return savedFilm;
-        });
-
-        // Создаём фильм и проверяем ответ
-        MvcResult result = mockMvc.perform(post("/films")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film)))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        String responseContent = result.getResponse().getContentAsString();
-        Film createdFilm = objectMapper.readValue(responseContent, Film.class);
-        int filmId = createdFilm.getId();
-
-        // Настройка мока для метода deleteFilm, чтобы он успешно выполнял удаление
-        when(filmService.deleteFilm(filmId)).thenReturn(true);
-
-        // Выполняем запрос на удаление фильма
-        mockMvc.perform(delete("/films/" + filmId))
+        mockMvc.perform(delete("/films/1"))
                 .andExpect(status().isNoContent());
+
+        verify(filmService, times(1)).deleteFilm(1);
     }
 
+    @Test
+    public void shouldReturnNotFoundWhenDeletingNonExistentFilm() throws Exception {
+        when(filmService.deleteFilm(999)).thenReturn(false);
+
+        mockMvc.perform(delete("/films/999"))
+                .andExpect(status().isNotFound());
+
+        verify(filmService, times(1)).deleteFilm(999);
+    }
+
+    @Test
+    public void shouldReturnBadRequestForInvalidFilmData() throws Exception {
+        testFilm.setName(""); // Некорректное имя фильма
+        when(filmService.createFilm(any(Film.class))).thenReturn(testFilm);
+
+        mockMvc.perform(post("/films")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testFilm)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldGetFilmByIdSuccessfully() throws Exception {
+        when(filmService.getFilmById(1)).thenReturn(Optional.of(testFilm));
+
+        mockMvc.perform(get("/films/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Test Film"));
+
+        verify(filmService, times(1)).getFilmById(1);
+    }
+
+    @Test
+    public void shouldReturnNotFoundWhenGettingNonExistentFilm() throws Exception {
+        when(filmService.getFilmById(999)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/films/999"))
+                .andExpect(status().isNotFound());
+
+        verify(filmService, times(1)).getFilmById(999);
+    }
 }
