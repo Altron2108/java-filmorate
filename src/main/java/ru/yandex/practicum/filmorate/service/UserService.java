@@ -61,5 +61,6 @@ public class UserService {
         if (user.getBirthday() == null || user.getBirthday().isAfter(java.time.LocalDate.now())) {
             throw new IllegalArgumentException("Дата рождения должна быть в прошлом.");
         }
+
     }
 }

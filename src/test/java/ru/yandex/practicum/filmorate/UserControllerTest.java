@@ -51,6 +51,16 @@ public class UserControllerTest {
     }
 
     @Test
+    void getUser_shouldReturnNotFoundWhenUserDoesNotExist() throws Exception {
+        when(userService.getUserById(1)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/users/1"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Пользователь с ID 1 не найден"));
+    }
+
+    @Test
     public void whenInvalidInput_thenReturnsStatus400() throws Exception {
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -87,6 +97,18 @@ public class UserControllerTest {
     }
 
     @Test
+    void updateUser_shouldReturnNotFoundWhenUserDoesNotExist() throws Exception {
+        when(userService.updateUser(eq(1), any(User.class))).thenReturn(Optional.empty());
+
+        mockMvc.perform(put("/users/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"updated@example.com\", \"login\":\"updated_doe\", " +
+                                "\"name\":\"Updated Name\", \"birthday\":\"1991-06-20\"}"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Пользователь с ID 1 не найден"));
+    }
+
+    @Test
     void deleteUser_shouldReturnNoContent() throws Exception {
         when(userService.deleteUser(1)).thenReturn(true);
 
@@ -94,4 +116,12 @@ public class UserControllerTest {
                 .andExpect(status().isNoContent());
     }
 
+    @Test
+    void deleteUser_shouldReturnNotFoundWhenUserDoesNotExist() throws Exception {
+        when(userService.deleteUser(1)).thenReturn(false);
+
+        mockMvc.perform(delete("/users/1"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Пользователь с ID 1 не найден"));
+    }
 }
