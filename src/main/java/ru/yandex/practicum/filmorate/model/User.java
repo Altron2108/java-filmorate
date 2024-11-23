@@ -33,4 +33,12 @@ public class User {
         this.name = name;
         this.birthday = birthday;
     }
+
+    // Метод сброса данных пользователя
+    public void resetData() {
+        this.email = "default@example.com"; // Значение по умолчанию для email
+        this.login = "defaultLogin"; // Значение по умолчанию для логина
+        this.name = "Anonymous"; // Значение по умолчанию для имени
+        this.birthday = LocalDate.of(1970, 1, 1); // Дата по умолчанию (пример)
+    }
 }

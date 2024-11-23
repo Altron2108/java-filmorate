@@ -24,10 +24,23 @@ public class Film {
     @Positive(message = "Продолжительность фильма должна быть положительным числом.")
     private int duration;
 
+    // Конструктор по умолчанию
+    public Film() {
+    }
+
+    // Конструктор с параметрами
+    public Film(String name, String description, LocalDate releaseDate, int duration) {
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+    }
+
+    // Метод сброса данных фильма
     public void resetData() {
-        this.name = null;
-        this.description = null;
-        this.releaseDate = null;
-        this.duration = 0;
+        this.name = "Untitled"; // Название по умолчанию
+        this.description = "No description available"; // Описание по умолчанию
+        this.releaseDate = LocalDate.of(1970, 1, 1); // Дата релиза по умолчанию
+        this.duration = 1; // Продолжительность по умолчанию
     }
 }

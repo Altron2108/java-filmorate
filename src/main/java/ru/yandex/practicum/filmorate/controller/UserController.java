@@ -45,6 +45,19 @@ public class UserController {
                         "Пользователь с ID " + id + " не найден"));
     }
 
+    @PutMapping("/{id}/reset")
+    public ResponseEntity<User> resetUserData(@PathVariable int id) {
+        Optional<User> user = userService.getUserById(id);
+        return user.map(u -> {
+                    u.resetData(); // Сброс данных пользователя
+                    userService.updateUser(id, u); // Обновление данных в хранилище
+                    return new ResponseEntity<>(u, HttpStatus.OK);
+                })
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Пользователь с ID " + id + " не найден"));
+    }
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable int id) {
         if (userService.deleteUser(id)) {

@@ -125,4 +125,3 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.error").value("Пользователь с ID 1 не найден"));
     }
 }
-
