@@ -79,8 +79,8 @@ class UserControllerTest {
 
     @Test
     void getUser_ShouldReturnUser() throws Exception {
-        User user = new User("user@example.com", "userlogin", "User", LocalDate.of
-                (1990, 1, 1));
+        User user = new User("user@example.com", "userlogin",
+                "User", LocalDate.of(1990, 1, 1));
         user.setId(1L);
 
         when(userStorage.getUserById(1L)).thenReturn(java.util.Optional.of(user));
