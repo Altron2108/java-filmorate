@@ -10,19 +10,19 @@ import java.util.Optional;
 
 @Repository
 public class InMemoryFilmStorage implements FilmStorage {
-    private final Map<Integer, Film> films = new HashMap<>();
-    private int nextId = 1;
+    private final Map<Long, Film> films = new HashMap<>();  // Изменили тип на Long
+    private long nextId = 1L;  // Тип nextId изменен на Long
 
     @Override
     public Film create(Film film) {
-        film.setId((long) nextId++);
-        films.put(Math.toIntExact(film.getId()), film);
+        film.setId(nextId++);  // Устанавливаем id как Long
+        films.put(film.getId(), film);  // Используем Long в качестве ключа
         return film;
     }
 
     @Override
     public Optional<Film> getFilmById(int id) {
-        return Optional.ofNullable(films.get(id));
+        return Optional.ofNullable(films.get((long) id));  // Преобразуем id в Long
     }
 
     @Override
@@ -35,12 +35,12 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (!films.containsKey(film.getId())) {
             throw new IllegalArgumentException("Фильм с ID " + film.getId() + " не найден.");
         }
-        films.put(Math.toIntExact(film.getId()), film);
+        films.put(film.getId(), film);  // Используем Long в качестве ключа
         return film;
     }
 
     @Override
     public boolean deleteFilm(int id) {
-        return films.remove(id) != null;
+        return films.remove((long) id) != null;  // Преобразуем id в Long
     }
 }
