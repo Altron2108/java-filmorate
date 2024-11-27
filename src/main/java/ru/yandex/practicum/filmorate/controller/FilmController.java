@@ -1,74 +1,53 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.util.Collection;
 
+@Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
 
-    private final FilmService filmService;
+    private final FilmStorage filmStorage;
 
-    @Autowired
-    public FilmController(FilmService filmService) {
-        this.filmService = filmService;
+    public FilmController(FilmStorage filmStorage) {
+        this.filmStorage = filmStorage;
     }
 
     @PostMapping
-    public ResponseEntity<Film> createFilm(@Valid @RequestBody Film film) {
-        Film createdFilm = filmService.createFilm(film);
-        return new ResponseEntity<>(createdFilm, HttpStatus.CREATED);
-    }
+    public ResponseEntity<Film> create(@Valid @RequestBody Film film) {
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Film> getFilm(@PathVariable int id) {
-        Optional<Film> film = filmService.getFilmById(id);
-        return film.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Фильм с ID " + id + " не найден"));
-    }
+        log.info("Получен запрос на создание фильма с данными: {}", film);
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Film> updateFilm(@PathVariable int id, @Valid @RequestBody Film film) {
-        Optional<Film> updatedFilm = filmService.updateFilm(id, film);
-        return updatedFilm.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Фильм с ID " + id + " не найден"));
-    }
-
-    @PutMapping("/{id}/reset")
-    public ResponseEntity<Film> resetFilmData(@PathVariable int id) {
-        Optional<Film> film = filmService.getFilmById(id);
-        return film.map(f -> {
-                    f.resetData();
-                    filmService.updateFilm(id, f); // Обновление фильма после сброса данных
-                    return new ResponseEntity<>(f, HttpStatus.OK);
-                })
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Фильм с ID " + id + " не найден"));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteFilm(@PathVariable int id) {
-        if (filmService.deleteFilm(id)) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Фильм с ID " + id + " не найден");
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            throw new ValidationException("Дата выхода фильма должна быть позже 28.12.1895");
         }
+
+        log.info("Создание нового фильма: {}", film.getName());
+        Film createdFilm = filmStorage.create(film);
+        log.info("Фильм создан: {}", createdFilm);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdFilm);  // Возвращаем созданный объект
+    }
+
+    @PutMapping
+    public ResponseEntity<Film> update(@Valid @RequestBody Film film) {
+        log.info("Обновление фильма с id = {}", film.getId());
+        return ResponseEntity.ok(filmStorage.update(film));
     }
 
     @GetMapping
-    public ResponseEntity<List<Film>> getAllFilms() {
-        List<Film> films = filmService.getAllFilms();
-        return new ResponseEntity<>(films, HttpStatus.OK);
+    public ResponseEntity<Collection<Film>> findAll() {
+        log.info("Запрос на получение всех фильмов");
+        return ResponseEntity.ok(filmStorage.findAll());
     }
 }

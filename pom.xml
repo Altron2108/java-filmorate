@@ -80,6 +80,13 @@
             <version>2.15.2</version>
         </dependency>
 
+        <!-- Модуль для обработки Java 8 типов (LocalDate, LocalDateTime и т. д.) -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.15.2</version>
+        </dependency>
+
         <!-- Явное добавление безопасных версий spring-context, spring-web и spring-webmvc -->
         <dependency>
             <groupId>org.springframework</groupId>

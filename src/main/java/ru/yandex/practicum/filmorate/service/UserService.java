@@ -16,7 +16,7 @@ public class UserService {
 
     public User createUser(User user) {
         validateUser(user);
-        user.setId(idCounter.getAndIncrement());
+        user.setId((long) idCounter.getAndIncrement());
         users.add(user);
         return user;
     }

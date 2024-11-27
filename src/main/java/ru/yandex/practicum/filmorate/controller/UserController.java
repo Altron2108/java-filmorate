@@ -1,74 +1,69 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserService userService;
+    private final UserStorage userStorage;
 
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(UserStorage userStorage) {
+        this.userStorage = userStorage;
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
-        User createdUser = userService.createUser(user);
-        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    public ResponseEntity<User> create(@Valid @RequestBody User user) {
+        log.info("Получен запрос на создание пользователя с данными: {}", user);
+
+        // Пример валидации, аналогичный фильму. Например, проверим, что день рождения пользователя не в будущем
+        if (user.getBirthday().isAfter(LocalDate.now())) {
+            throw new ValidationException("Дата рождения пользователя не может быть в будущем");
+        }
+
+        log.info("Создание нового пользователя: {}", user.getLogin());
+        User createdUser = userStorage.addUser(user);
+        log.info("Пользователь создан: {}", createdUser);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);  // Возвращаем созданный объект
+    }
+
+    @PutMapping
+    public ResponseEntity<Optional<User>> update(@Valid @RequestBody User user) {
+        log.info("Обновление пользователя с id = {}", user.getId());
+        return ResponseEntity.ok(userStorage.updateUser(user));  // Обновление пользователя
+    }
+
+    @GetMapping
+    public ResponseEntity<Collection<User>> findAll() {
+        log.info("Запрос на получение всех пользователей");
+        return ResponseEntity.ok(userStorage.getAllUsers());  // Возвращаем всех пользователей
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUser(@PathVariable int id) {
-        Optional<User> user = userService.getUserById(id);
-        return user.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Пользователь с ID " + id + " не найден"));
+        return userStorage.getUserById((long) id)
+                .map(ResponseEntity::ok)  // Если пользователь найден, возвращаем 200 OK
+                .orElse(ResponseEntity.notFound().build());  // Если нет, возвращаем 404
     }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable int id, @Valid @RequestBody User user) {
-        Optional<User> updatedUser = userService.updateUser(id, user);
-        return updatedUser.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Пользователь с ID " + id + " не найден"));
-    }
-
-    @PutMapping("/{id}/reset")
-    public ResponseEntity<User> resetUserData(@PathVariable int id) {
-        return userService.getUserById(id).map(user -> {
-            user.resetData();
-            user.setName("common"); // Устанавливаем значение по умолчанию
-            userService.updateUser(id, user);
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                "Пользователь с ID " + id + " не найден"));
-    }
-
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable int id) {
-        if (userService.deleteUser(id)) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с ID " + id + " не найден");
+    public ResponseEntity<Void> delete(@PathVariable int id) {
+        if (userStorage.deleteUser((long) id)) {
+            return ResponseEntity.noContent().build();  // Если пользователь удален, возвращаем 204 No Content
         }
-    }
-
-    @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        return new ResponseEntity<>(users, HttpStatus.OK);
+        return ResponseEntity.notFound().build();  // Если нет, возвращаем 404 Not Found
     }
 }

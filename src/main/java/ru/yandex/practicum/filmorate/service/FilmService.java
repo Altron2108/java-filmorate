@@ -16,7 +16,7 @@ public class FilmService {
 
     public Film createFilm(Film film) {
         validateFilm(film);
-        film.setId(idCounter.getAndIncrement());
+        film.setId((long) idCounter.getAndIncrement());
         films.add(film);
         return film;
     }
@@ -53,6 +53,6 @@ public class FilmService {
         if (film.getDuration() <= 0) {
             throw new IllegalArgumentException("Продолжительность фильма должна быть положительной.");
         }
-        // Другие проверки...
+
     }
 }
