@@ -78,6 +78,7 @@ class FilmControllerTest {
         assertTrue(responseContent.contains("120"), "Response does not contain '120'");
     }
 
+
     @Test
     void getAllFilms_ShouldReturnFilms() throws Exception {
         // Создаем объект Film
