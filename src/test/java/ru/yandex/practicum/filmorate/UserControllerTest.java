@@ -70,8 +70,8 @@ class UserControllerTest {
         System.out.println("Response Content: " + responseContent);  // Печать для отладки
 
         // Проверяем, что ответ содержит ожидаемые значения
-        assertTrue(responseContent.contains("user@example.com"),
-                "Response does not contain 'user@example.com'");
+        assertTrue(responseContent.contains("user@example.com"), "Response does not contain 'user@example.com'")
+        ;
         assertTrue(responseContent.contains("userlogin"), "Response does not contain 'userlogin'");
         assertTrue(responseContent.contains("User"), "Response does not contain 'User'");
         assertTrue(responseContent.contains("1990-01-01"), "Response does not contain '1990-01-01'");
@@ -83,7 +83,7 @@ class UserControllerTest {
                 (1990, 1, 1));
         user.setId(1L);
 
-        when(userStorage.getUserById(1L)).thenReturn(java.util.Optional.of(user));
+        when(userStorage.getUserById(1L)).thenReturn(java.util.Optional.of(user));д
 
         mockMvc.perform(get("/users/1"))
                 .andExpect(status().isOk())
