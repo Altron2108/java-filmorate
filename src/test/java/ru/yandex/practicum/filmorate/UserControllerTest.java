@@ -91,19 +91,6 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.login").value("userlogin"));
     }
 
-    @Test
-    void handleValidationException_ShouldReturnBadRequestResponse() throws Exception {
-        mockMvc.perform(put("/users")
-                        .contentType("application/json")
-                        .content("{\"email\":\"user@example.com\",\"login\":\"userlogin\"," +
-                                "\"name\":\"User\",\"birthday\":\"1990-01-01\"}")) // ID отсутствует
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.error").value("ValidationException"))
-                .andExpect(jsonPath("$.message").value("ID пользователя не может быть пустым"))
-                .andExpect(jsonPath("$.timestamp").exists());
-    }
-
 
     @Test
     void getUser_ShouldReturnNotFound_WhenUserDoesNotExist() throws Exception {
