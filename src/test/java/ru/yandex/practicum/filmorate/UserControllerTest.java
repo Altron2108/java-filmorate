@@ -42,8 +42,8 @@ class UserControllerTest {
     @Test
     void createUser_ShouldReturnCreatedUser() throws Exception {
         // Создаем объект User
-        User user = new User("user@example.com", "userlogin", "User",
-                LocalDate.of(1990, 1, 1));
+        User user = new User("user@example.com", "userlogin",
+                "User", LocalDate.of(1990, 1, 1));
         user.setId(1L);
 
         // Мокируем поведение userStorage
@@ -101,8 +101,8 @@ class UserControllerTest {
 
     @Test
     void updateUser_ShouldReturnUpdatedUser() throws Exception {
-        User user = new User("user@example.com", "userlogin", "UpdatedUser", LocalDate.of
-                (1990, 1, 1));
+        User user = new User("user@example.com", "userlogin",
+                "UpdatedUser", LocalDate.of(1990, 1, 1));
         user.setId(1L);
 
         when(userStorage.updateUser(user)).thenReturn(java.util.Optional.of(user));
