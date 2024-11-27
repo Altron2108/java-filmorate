@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class FilmService {
 
     private final AtomicInteger idCounter = new AtomicInteger(1);
-    private final List<Film> films = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<Film> films = new CopyOnWriteArrayList<>();
 
     public Film createFilm(Film film) {
         validateFilm(film);
@@ -21,29 +21,27 @@ public class FilmService {
         return film;
     }
 
-    public Optional<Film> getFilmById(int id) {
+    public Optional<Film> getFilmById(long id) {
         return films.stream().filter(film -> film.getId() == id).findFirst();
     }
 
-    public Optional<Film> updateFilm(int id, Film film) {
-        validateFilm(film);
-        return getFilmById(id).map(existingFilm -> {
-            if (film.getName() != null) existingFilm.setName(film.getName());
-            if (film.getDescription() != null) existingFilm.setDescription(film.getDescription());
-            if (film.getReleaseDate() != null) existingFilm.setReleaseDate(film.getReleaseDate());
-            if (film.getDuration() > 0) existingFilm.setDuration(film.getDuration());
-            return existingFilm;
-        });
+    public Film updateFilm(long id, Film updatedFilm) {
+        validateFilm(updatedFilm);
+        Film existingFilm = getFilmById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Фильм с ID " + id + " не найден."));
+        existingFilm.setName(updatedFilm.getName());
+        existingFilm.setDescription(updatedFilm.getDescription());
+        existingFilm.setReleaseDate(updatedFilm.getReleaseDate());
+        existingFilm.setDuration(updatedFilm.getDuration());
+        return existingFilm;
     }
 
-    public boolean deleteFilm(int id) {
+    public boolean deleteFilm(long id) {
         return films.removeIf(film -> film.getId() == id);
     }
 
     public List<Film> getAllFilms() {
-        return films.stream()
-                .map(f -> new Film(f.getName(), f.getDescription(), f.getReleaseDate(), f.getDuration()))
-                .toList();
+        return List.copyOf(films);
     }
 
     private void validateFilm(Film film) {
@@ -53,6 +51,5 @@ public class FilmService {
         if (film.getDuration() <= 0) {
             throw new IllegalArgumentException("Продолжительность фильма должна быть положительной.");
         }
-
     }
 }
