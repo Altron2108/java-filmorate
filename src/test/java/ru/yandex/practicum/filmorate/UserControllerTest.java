@@ -107,10 +107,16 @@ class UserControllerTest {
 
         when(userStorage.updateUser(user)).thenReturn(java.util.Optional.of(user));
 
+        // Сериализация объекта User в JSON
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());  // Подключает поддержку LocalDate
+
+        String userJson = objectMapper.writeValueAsString(user);
+        System.out.println("Serialized User JSON: " + userJson);
+
         mockMvc.perform(put("/users")
                         .contentType("application/json")
-                        .content("{\"id\":1,\"email\":\"user@example.com\",\"login\":\"userlogin\"," +
-                                "\"name\":\"UpdatedUser\",\"birthday\":\"1990-01-01\"}"))
+                        .content(userJson))  // Используем сериализованный JSON
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("UpdatedUser"));
     }

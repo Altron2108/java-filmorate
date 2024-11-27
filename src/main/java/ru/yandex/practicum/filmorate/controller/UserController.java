@@ -41,9 +41,16 @@ public class UserController {
     }
 
     @PutMapping
-    public ResponseEntity<Optional<User>> update(@Valid @RequestBody User user) {
+    public ResponseEntity<User> update(@Valid @RequestBody User user) {
         log.info("Обновление пользователя с id = {}", user.getId());
-        return ResponseEntity.ok(userStorage.updateUser(user));  // Обновление пользователя
+
+        if (user.getId() == null) {
+            throw new ValidationException("ID пользователя не может быть пустым для обновления.");
+        }
+
+        Optional<User> updatedUser = userStorage.updateUser(user);
+        return updatedUser.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @GetMapping
