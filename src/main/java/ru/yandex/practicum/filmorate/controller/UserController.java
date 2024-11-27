@@ -51,8 +51,8 @@ public class UserController {
         }
 
         Optional<User> updatedUser = userStorage.updateUser(user);
-        return updatedUser.map(value -> ResponseEntity.ok
-                (new ApiResponse<>("Пользователь успешно обновлен", value))).orElseGet(() ->
+        return updatedUser.map(value ->
+                ResponseEntity.ok(new ApiResponse<>("Пользователь успешно обновлен", value))).orElseGet(() ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ApiResponse<>("Пользователь с id = " + user.getId() + " не найден", null)));
     }
