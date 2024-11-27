@@ -58,6 +58,7 @@ public class UserController {
     }
 
 
+
     @GetMapping
     public ResponseEntity<Collection<User>> findAll() {
         log.info("Запрос на получение всех пользователей");
