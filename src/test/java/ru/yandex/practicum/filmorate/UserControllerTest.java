@@ -70,8 +70,8 @@ class UserControllerTest {
         System.out.println("Response Content: " + responseContent);  // Печать для отладки
 
         // Проверяем, что ответ содержит ожидаемые значения
-        assertTrue(responseContent.contains("user@example.com"), "Response does not contain 'user@example.com'")
-        ;
+        assertTrue(responseContent.contains
+                ("user@example.com"), "Response does not contain 'user@example.com'");
         assertTrue(responseContent.contains("userlogin"), "Response does not contain 'userlogin'");
         assertTrue(responseContent.contains("User"), "Response does not contain 'User'");
         assertTrue(responseContent.contains("1990-01-01"), "Response does not contain '1990-01-01'");
@@ -110,8 +110,7 @@ class UserControllerTest {
         mockMvc.perform(put("/users")
                         .contentType("application/json")
                         .content("{\"id\":1,\"email\":\"user@example.com\",\"login\":\"userlogin\"," +
-                                "\"name\":\"UpdatedUser\",\"birthday\":\"1990-01-01\"}")
-                )
+                                "\"name\":\"UpdatedUser\",\"birthday\":\"1990-01-01\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("UpdatedUser"));
     }
