@@ -15,8 +15,10 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -105,21 +107,34 @@ class UserControllerTest {
                 "UpdatedUser", LocalDate.of(1990, 1, 1));
         user.setId(1L);
 
-        when(userStorage.updateUser(user)).thenReturn(java.util.Optional.of(user));
-
-        // Сериализация объекта User в JSON
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());  // Подключает поддержку LocalDate
-
-        String userJson = objectMapper.writeValueAsString(user);
-        System.out.println("Serialized User JSON: " + userJson);
+        when(userStorage.updateUser(user)).thenReturn(Optional.of(user));
 
         mockMvc.perform(put("/users")
                         .contentType("application/json")
-                        .content(userJson))  // Используем сериализованный JSON
+                        .content("{\"id\":1,\"email\":\"user@example.com\",\"login\":\"userlogin\"," +
+                                "\"name\":\"UpdatedUser\",\"birthday\":\"1990-01-01\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("UpdatedUser"));
+                .andExpect(jsonPath("$.message").value("Пользователь успешно обновлен"))
+                .andExpect(jsonPath("$.data.name").value("UpdatedUser"))
+                .andExpect(jsonPath("$.data.email").value("user@example.com"))
+                .andExpect(jsonPath("$.data.login").value("userlogin"))
+                .andExpect(jsonPath("$.data.birthday").value("1990-01-01"));
     }
+
+
+    @Test
+    void updateUser_ShouldReturnNotFound_WhenUserDoesNotExist() throws Exception {
+        when(userStorage.updateUser(any(User.class))).thenReturn(Optional.empty());
+
+        mockMvc.perform(put("/users")
+                        .contentType("application/json")
+                        .content("{\"id\":999,\"email\":\"unknown@example.com\",\"login\":\"unknownlogin\"," +
+                                "\"name\":\"Unknown\",\"birthday\":\"1990-01-01\"}"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Пользователь с id = 999 не найден"))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
 
     @Test
     void deleteUser_ShouldReturnNoContent_WhenDeleted() throws Exception {

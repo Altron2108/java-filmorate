@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.ApiResponse;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -41,17 +42,21 @@ public class UserController {
     }
 
     @PutMapping
-    public ResponseEntity<User> update(@Valid @RequestBody User user) {
+    public ResponseEntity<ApiResponse<User>> update(@Valid @RequestBody User user) {
         log.info("Обновление пользователя с id = {}", user.getId());
 
         if (user.getId() == null) {
-            throw new ValidationException("ID пользователя не может быть пустым для обновления.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>("ID пользователя не может быть пустым", null));
         }
 
         Optional<User> updatedUser = userStorage.updateUser(user);
-        return updatedUser.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+        return updatedUser.map(value -> ResponseEntity.ok
+                (new ApiResponse<>("Пользователь успешно обновлен", value))).orElseGet(() ->
+                ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse<>("Пользователь с id = " + user.getId() + " не найден", null)));
     }
+
 
     @GetMapping
     public ResponseEntity<Collection<User>> findAll() {
