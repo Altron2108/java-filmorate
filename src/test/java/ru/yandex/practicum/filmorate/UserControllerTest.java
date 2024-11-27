@@ -83,7 +83,7 @@ class UserControllerTest {
                 (1990, 1, 1));
         user.setId(1L);
 
-        when(userStorage.getUserById(1L)).thenReturn(java.util.Optional.of(user));д
+        when(userStorage.getUserById(1L)).thenReturn(java.util.Optional.of(user));
 
         mockMvc.perform(get("/users/1"))
                 .andExpect(status().isOk())
