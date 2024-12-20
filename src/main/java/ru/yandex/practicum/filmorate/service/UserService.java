@@ -14,7 +14,7 @@ public class UserService {
     private final AtomicInteger idCounter = new AtomicInteger(1);
     private final List<User> users = new CopyOnWriteArrayList<>();
 
-    public User createUser(User user) {
+    public User addUser(User user) {
         validateUser(user);
         user.setId((long) idCounter.getAndIncrement());
         users.add(user);

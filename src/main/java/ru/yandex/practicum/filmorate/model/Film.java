@@ -5,15 +5,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Data
-@NoArgsConstructor // Генерирует конструктор по умолчанию
-@AllArgsConstructor // Генерирует конструктор со всеми полями
 public class Film {
     private Long id;
 

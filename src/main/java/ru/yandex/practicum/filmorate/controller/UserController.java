@@ -2,16 +2,12 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -25,36 +21,14 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> create(@Valid @RequestBody User user) {
-        log.info("Получен запрос на создание пользователя с данными: {}", user);
-
-        // Пример валидации, аналогичный фильму. Например, проверим, что день рождения пользователя не в будущем
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("Дата рождения пользователя не может быть в будущем");
+    public User create(@Valid @RequestBody User user) {
+      return userStorage.addUser(user);
         }
-
-        log.info("Создание нового пользователя: {}", user.getLogin());
-        User createdUser = userStorage.addUser(user);
-        log.info("Пользователь создан: {}", createdUser);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);  // Возвращаем созданный объект
-    }
 
     @PutMapping
-    public ResponseEntity<?> update(@Valid @RequestBody User user) {
+    public User update(@Valid @RequestBody User user) {
         log.info("Обновление пользователя с id = {}", user.getId());
-
-        if (user.getId() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ID пользователя не может быть пустым");
-        }
-
-        Optional<User> updatedUser = userStorage.updateUser(user);
-        if (updatedUser.isPresent()) {
-            return ResponseEntity.ok(updatedUser.get());
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Пользователь с id = " + user.getId() + " не найден");
-        }
+        return userStorage.updateUser(user);
     }
 
 

@@ -62,7 +62,7 @@ class UserControllerTest {
                         .contentType("application/json")
                         .content(userJson)) // Используем сериализованный JSON
                 .andDo(print())  // Печать ответа для отладки
-                .andExpect(status().isCreated())  // Проверка статуса Created
+                .andExpect(status().isOk())  // Проверка статуса Created
                 .andReturn();
 
         // Получаем содержимое ответа
@@ -106,7 +106,7 @@ class UserControllerTest {
                 "UpdatedUser", LocalDate.of(1990, 1, 1));
         user.setId(1L);
 
-        when(userStorage.updateUser(user)).thenReturn(java.util.Optional.of(user));
+        when(userStorage.updateUser(user)).thenReturn(user);
 
         // Сериализация объекта User в JSON
         ObjectMapper objectMapper = new ObjectMapper();

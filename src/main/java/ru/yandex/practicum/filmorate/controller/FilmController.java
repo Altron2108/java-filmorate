@@ -1,11 +1,11 @@
 package ru.yandex.practicum.filmorate.controller;
 
+
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.ApiResponse;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -41,23 +41,11 @@ public class FilmController {
     }
 
     @PutMapping
-    public ResponseEntity<ApiResponse<Film>> update(@Valid @RequestBody Film film) {
+    public Film update(@Valid @RequestBody Film film) {
         log.info("Обновление фильма с id = {}", film.getId());
 
-        if (film.getId() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponse<>("ID фильма не может быть пустым", null));
-        }
-
-        Film updatedFilm = filmStorage.update(film);
-        if (updatedFilm != null) {
-            return ResponseEntity.ok(new ApiResponse<>("Фильм успешно обновлен", updatedFilm));
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiResponse<>("Фильм с id = " + film.getId() + " не найден", null));
-        }
+        return filmStorage.update(film);
     }
-
 
     @GetMapping
     public ResponseEntity<Collection<Film>> findAll() {
