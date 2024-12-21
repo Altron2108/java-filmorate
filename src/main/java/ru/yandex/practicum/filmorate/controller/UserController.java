@@ -22,8 +22,8 @@ public class UserController {
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-      return userStorage.addUser(user);
-        }
+        return userStorage.addUser(user);
+    }
 
     @PutMapping
     public User update(@Valid @RequestBody User user) {
