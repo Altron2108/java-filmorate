@@ -47,7 +47,7 @@ class FilmControllerTest {
         Film film = new Film("Film Title", "Description",
                 LocalDate.of(2020, 1, 1), 120);
 
-        // Мокируем поведение FilmStorage: возвращаем объект с сгенерированным id
+        // Мокируем поведение FilmStorage: возвращаем объект с генерированным id
         Film createdFilm = new Film("Film Title", "Description",
                 LocalDate.of(2020, 1, 1), 120);
         createdFilm.setId(1L); // Устанавливаем id для теста
