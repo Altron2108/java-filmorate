@@ -37,19 +37,22 @@ class FilmControllerTest {
 
     @BeforeEach
     void setUp() {
-        // Инициализация моков
         MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(filmController).build();
     }
 
     @Test
     void createFilm_ShouldReturnCreatedFilm() throws Exception {
-        // Создаем объект Film
-        Film film = new Film(1L, "Film Title", "Description",
+        // Создаем объект Film без id
+        Film film = new Film("Film Title", "Description",
                 LocalDate.of(2020, 1, 1), 120);
 
-        // Мокируем поведение FilmStorage
-        when(filmStorage.create(any(Film.class))).thenReturn(film);
+        // Мокируем поведение FilmStorage: возвращаем объект с сгенерированным id
+        Film createdFilm = new Film("Film Title", "Description",
+                LocalDate.of(2020, 1, 1), 120);
+        createdFilm.setId(1L); // Устанавливаем id для теста
+
+        when(filmStorage.create(any(Film.class))).thenReturn(createdFilm);
 
         // Настроим ObjectMapper для сериализации
         ObjectMapper objectMapper = new ObjectMapper();
@@ -57,46 +60,40 @@ class FilmControllerTest {
 
         // Сериализуем объект Film в JSON строку
         String filmJson = objectMapper.writeValueAsString(film);
-        System.out.println("Serialized Film JSON: " + filmJson);  // Для отладки
 
         // Выполняем POST-запрос
         MvcResult result = mockMvc.perform(post("/films")
                         .contentType("application/json")
                         .content(filmJson))
-                .andDo(print())  // Печатает ответ для отладки
-                .andExpect(status().isCreated())  // Проверяем, что статус Created
+                .andDo(print())
+                .andExpect(status().isCreated())
                 .andReturn();
 
-        // Получаем содержимое ответа
+        // Проверяем содержимое ответа
         String responseContent = result.getResponse().getContentAsString();
-        System.out.println("Response Content: " + responseContent);  // Для отладки
-
-        // Проверяем, что ответ содержит ожидаемые значения
-        assertTrue(responseContent.contains("Film Title"), "Response does not contain 'Film Title'");
-        assertTrue(responseContent.contains("Description"), "Response does not contain 'Description'");
-        assertTrue(responseContent.contains("2020-01-01"), "Response does not contain '2020-01-01'");
-        assertTrue(responseContent.contains("120"), "Response does not contain '120'");
+        assertTrue(responseContent.contains("Film Title"));
+        assertTrue(responseContent.contains("Description"));
+        assertTrue(responseContent.contains("2020-01-01"));
+        assertTrue(responseContent.contains("120"));
     }
-
 
     @Test
     void getAllFilms_ShouldReturnFilms() throws Exception {
         // Создаем объект Film
-        Film film = new Film(1L, "Film Title", "Description",
+        Film film = new Film("Film Title", "Description",
                 LocalDate.of(2020, 1, 1), 120);
+        film.setId(1L); // Устанавливаем id для теста
 
         // Мокируем поведение FilmStorage
         when(filmStorage.findAll()).thenReturn(Collections.singletonList(film));
 
         // Выполняем GET-запрос для получения всех фильмов
         mockMvc.perform(get("/films"))
-                .andExpect(status().isOk())  // Проверяем статус OK
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1L))
                 .andExpect(jsonPath("$[0].name").value("Film Title"))
-                // Проверяем, что имя фильма соответствует
                 .andExpect(jsonPath("$[0].description").value("Description"))
-                // Проверяем описание
                 .andExpect(jsonPath("$[0].releaseDate").value("2020-01-01"))
-                // Проверяем дату выпуска
-                .andExpect(jsonPath("$[0].duration").value(120));  // Проверяем длительность
+                .andExpect(jsonPath("$[0].duration").value(120));
     }
 }
