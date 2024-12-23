@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -18,10 +18,10 @@ import java.util.Collection;
 @RequestMapping("/films")
 public class FilmController {
 
-    private final FilmStorage filmStorage;
+    private final FilmService filmService;
 
-    public FilmController(FilmStorage filmStorage) {
-        this.filmStorage = filmStorage;
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
     }
 
     @PostMapping
@@ -34,7 +34,7 @@ public class FilmController {
         }
 
         log.info("Создание нового фильма: {}", film.getName());
-        Film createdFilm = filmStorage.create(film);
+        Film createdFilm = filmService.createFilm(film);
         log.info("Фильм создан: {}", createdFilm);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdFilm);  // Возвращаем созданный объект
@@ -44,12 +44,13 @@ public class FilmController {
     public Film update(@Valid @RequestBody Film film) {
         log.info("Обновление фильма с id = {}", film.getId());
 
-        return filmStorage.update(film);
+        return filmService.updateFilm(film);
     }
 
     @GetMapping
     public ResponseEntity<Collection<Film>> findAll() {
         log.info("Запрос на получение всех фильмов");
-        return ResponseEntity.ok(filmStorage.findAll());
+        return ResponseEntity.ok(filmService.getAllFilms());
     }
 }
+

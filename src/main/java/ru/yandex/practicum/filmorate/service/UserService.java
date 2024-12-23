@@ -1,66 +1,63 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 
+@Slf4j
 @Service
 public class UserService {
 
-    private final AtomicInteger idCounter = new AtomicInteger(1);
-    private final List<User> users = new CopyOnWriteArrayList<>();
+    private final UserStorage userStorage;
+
+    public UserService(UserStorage userStorage) {
+        this.userStorage = userStorage;
+    }
 
     public User addUser(User user) {
-        validateUser(user);
-        user.setId((long) idCounter.getAndIncrement());
-        users.add(user);
+        log.info("Adding new user: {}", user);
+        User createdUser = userStorage.addUser(user);
+        log.info("User added successfully with ID: {}", createdUser.getId());
+        return createdUser;
+    }
+
+    public Optional<User> getUserById(long id) {
+        log.info("Fetching user with ID: {}", id);
+        Optional<User> user = userStorage.getUserById(id);
+        if (user.isPresent()) {
+            log.info("User found: {}", user.get());
+        } else {
+            log.warn("User with ID {} not found", id);
+        }
         return user;
     }
 
-    public Optional<User> getUserById(int id) {
-        return users.stream().filter(user -> user.getId() == id).findFirst();
+    public User updateUser(User user) {
+        log.info("Updating user with ID: {}", user.getId());
+        User updatedUser = userStorage.updateUser(user);
+        log.info("User updated successfully: {}", updatedUser);
+        return updatedUser;
     }
 
-    public Optional<User> updateUser(int id, User user) {
-        return getUserById(id).map(existingUser -> {
-            if (user.getName() != null && !user.getName().isBlank()) {
-                existingUser.setName(user.getName());
-            }
-            if (user.getEmail() != null && !user.getEmail().isBlank()) {
-                existingUser.setEmail(user.getEmail());
-            }
-            if (user.getLogin() != null && !user.getLogin().isBlank()) {
-                existingUser.setLogin(user.getLogin());
-            }
-            if (user.getBirthday() != null) {
-                existingUser.setBirthday(user.getBirthday());
-            }
-            return existingUser;
-        });
-    }
-
-    public boolean deleteUser(int id) {
-        return users.removeIf(user -> user.getId() == id);
+    public boolean deleteUser(long id) {
+        log.info("Deleting user with ID: {}", id);
+        boolean isDeleted = userStorage.deleteUser(id);
+        if (isDeleted) {
+            log.info("User with ID {} deleted successfully", id);
+        } else {
+            log.warn("Failed to delete user with ID {}. User not found.", id);
+        }
+        return isDeleted;
     }
 
     public List<User> getAllUsers() {
-        return users.stream().map(u -> new User(u.getEmail(), u.getLogin(), u.getName(), u.getBirthday())).toList();
-    }
-
-    private void validateUser(User user) {
-        if (user.getEmail() == null || user.getEmail().isBlank()) {
-            throw new IllegalArgumentException("Email не может быть пустым.");
-        }
-        if (user.getLogin() == null || user.getLogin().isBlank()) {
-            throw new IllegalArgumentException("Логин не может быть пустым.");
-        }
-        if (user.getBirthday() == null || user.getBirthday().isAfter(java.time.LocalDate.now())) {
-            throw new IllegalArgumentException("Дата рождения должна быть в прошлом.");
-        }
-
+        log.info("Fetching all users");
+        List<User> users = userStorage.getAllUsers();
+        log.info("{} users found", users.size());
+        return users;
     }
 }
