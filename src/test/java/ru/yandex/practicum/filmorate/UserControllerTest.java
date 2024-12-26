@@ -12,7 +12,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.time.LocalDate;
 
@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserControllerTest {
 
     @Mock
-    private UserStorage userStorage;
+    private UserService userService;
 
     @InjectMocks
     private UserController userController;
@@ -47,7 +47,7 @@ class UserControllerTest {
         user.setId(1L);
 
         // Мокируем поведение userStorage
-        when(userStorage.addUser(user)).thenReturn(user);
+        when(userService.addUser(user)).thenReturn(user);
 
         // Настроим ObjectMapper для сериализации
         ObjectMapper objectMapper = new ObjectMapper();
@@ -83,7 +83,7 @@ class UserControllerTest {
                 "User", LocalDate.of(1990, 1, 1));
         user.setId(1L);
 
-        when(userStorage.getUserById(1L)).thenReturn(java.util.Optional.of(user));
+        when(userService.getUserById(1L)).thenReturn(java.util.Optional.of(user));
 
         mockMvc.perform(get("/users/1"))
                 .andExpect(status().isOk())
@@ -94,7 +94,7 @@ class UserControllerTest {
 
     @Test
     void getUser_ShouldReturnNotFound_WhenUserDoesNotExist() throws Exception {
-        when(userStorage.getUserById(1L)).thenReturn(java.util.Optional.empty());
+        when(userService.getUserById(1L)).thenReturn(java.util.Optional.empty());
 
         mockMvc.perform(get("/users/1"))
                 .andExpect(status().isNotFound());
@@ -106,7 +106,7 @@ class UserControllerTest {
                 "UpdatedUser", LocalDate.of(1990, 1, 1));
         user.setId(1L);
 
-        when(userStorage.updateUser(user)).thenReturn(user);
+        when(userService.updateUser(user)).thenReturn(user);
 
         // Сериализация объекта User в JSON
         ObjectMapper objectMapper = new ObjectMapper();
@@ -125,7 +125,7 @@ class UserControllerTest {
 
     @Test
     void deleteUser_ShouldReturnNoContent_WhenDeleted() throws Exception {
-        when(userStorage.deleteUser(1L)).thenReturn(true);
+        when(userService.deleteUser(1L)).thenReturn(true);
 
         mockMvc.perform(delete("/users/1"))
                 .andExpect(status().isNoContent());
@@ -133,7 +133,7 @@ class UserControllerTest {
 
     @Test
     void deleteUser_ShouldReturnNotFound_WhenNotDeleted() throws Exception {
-        when(userStorage.deleteUser(1L)).thenReturn(false);
+        when(userService.deleteUser(1L)).thenReturn(false);
 
         mockMvc.perform(delete("/users/1"))
                 .andExpect(status().isNotFound());
