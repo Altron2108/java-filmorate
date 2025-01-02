@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -9,21 +10,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Slf4j
 @Repository
 public class InMemoryFilmStorage implements FilmStorage {
-    private final Map<Long, Film> films = new HashMap<>();  // Изменили тип на Long
-    private long nextId = 1L;  // Тип nextId изменен на Long
+    private final Map<Long, Film> films = new HashMap<>();
+    private long nextId = 1L;
 
     @Override
     public Film create(Film film) {
-        film.setId(nextId++);  // Устанавливаем id как Long
-        films.put(film.getId(), film);  // Используем Long в качестве ключа
+        film.setId(nextId++);
+        films.put(film.getId(), film);
         return film;
     }
 
     @Override
-    public Optional<Film> getFilmById(int id) {
-        return Optional.ofNullable(films.get((long) id));  // Преобразуем id в Long
+    public Optional<Film> getFilmById(Long id) {
+        return Optional.ofNullable(films.get(id));
     }
 
     @Override
@@ -36,12 +38,12 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (!films.containsKey(film.getId())) {
             throw new NotFoundException("Фильм с ID " + film.getId() + " не найден.");
         }
-        films.put(film.getId(), film);  // Используем Long в качестве ключа
+        films.put(film.getId(), film);
         return film;
     }
 
     @Override
     public boolean deleteFilm(int id) {
-        return films.remove((long) id) != null;  // Преобразуем id в Long
+        return films.remove((long) id) != null;
     }
 }

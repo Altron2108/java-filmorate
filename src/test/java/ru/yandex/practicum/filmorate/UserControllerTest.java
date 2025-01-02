@@ -15,8 +15,11 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -138,4 +141,53 @@ class UserControllerTest {
         mockMvc.perform(delete("/users/1"))
                 .andExpect(status().isNotFound());
     }
+    @Test
+    void addFriend_ShouldAddFriend() throws Exception {
+        User user1 = new User("user1@example.com", "user1login", "User1",
+                LocalDate.of(1990, 1, 1));
+        User user2 = new User("user2@example.com", "user2login", "User2",
+                LocalDate.of(1992, 2, 2));
+
+        user1.setId(1L);
+        user2.setId(2L);
+
+        when(userService.getUserById(1L)).thenReturn(java.util.Optional.of(user1));
+        when(userService.getUserById(2L)).thenReturn(java.util.Optional.of(user2));
+        when(userService.addFriend(1L, 2L)).thenReturn(true); // Мокируем результат добавления друга
+
+        mockMvc.perform(post("/users/1/friends/2"))
+                .andExpect(status().isOk());
+
+        // Проверяем, что метод addFriend вызван
+        verify(userService).addFriend(1L, 2L);
+    }
+
+    @Test
+    void addFriend_ShouldReturnNotFound_WhenUserDoesNotExist() throws Exception {
+        when(userService.getUserById(1L)).thenReturn(Optional.empty());
+
+        mockMvc.perform(post("/users/1/friends/2"))
+                .andExpect(status().isNotFound()); // Ожидаем статус 404
+    }
+
+    @Test
+    void removeFriend_ShouldCallServiceAndReturnOk() throws Exception {
+        User user1 = new User("user1@example.com", "user1login", "User1",
+                LocalDate.of(1990, 1, 1));
+        User user2 = new User("user2@example.com", "user2login", "User2",
+                LocalDate.of(1992, 2, 2));
+
+        user1.setId(1L);
+        user2.setId(2L);
+
+        when(userService.getUserById(1L)).thenReturn(java.util.Optional.of(user1));
+        when(userService.getUserById(2L)).thenReturn(java.util.Optional.of(user2));
+
+        mockMvc.perform(delete("/users/1/friends/2"))
+                .andExpect(status().isOk());
+
+        // Проверка, что метод removeFriend вызван
+        verify(userService).removeFriend(1L, 2L);
+    }
+
 }
