@@ -105,9 +105,11 @@ class FilmControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
+
     @Test
     void addLike_ShouldAddLikeToFilm() {
-        Film film = new Film("Film Title", "Description", LocalDate.of(2020, 1, 1), 120);
+        Film film = new Film("Film Title", "Description",
+                LocalDate.of(2020, 1, 1), 120);
         film.setId(1L);
 
         film.addLike(100L);
