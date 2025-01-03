@@ -28,18 +28,18 @@ public class User {
     private String name;
 
     @PastOrPresent(message = "Дата рождения должна быть в прошлом")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") // Формат даты
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthday;
 
     // Метод для установки друзей
     // Метод для получения друзей (уже генерируется через @Data, оставлено для ясности)
-    private Set<Long> friends = new HashSet<>(); // Хранение идентификаторов друзей
+    private Set<Long> friends = new HashSet<>();
 
     // Конструктор с параметрами
     public User(String email, String login, String name, LocalDate birthday) {
         this.email = email;
         this.login = login;
-        this.name = name != null && !name.isBlank() ? name : login; // если имя пустое, ставим логин
+        this.name = name != null && !name.isBlank() ? name : login;
         this.birthday = birthday;
     }
 

@@ -66,9 +66,9 @@ public class UserController {
     @PostMapping("/{userId}/friends/{friendId}")
     public ResponseEntity<Void> addFriend(@PathVariable Long userId, @PathVariable Long friendId) {
         if (userService.addFriend(userId, friendId)) {
-            return ResponseEntity.ok().build(); // Возвращаем 200 OK, если друг успешно добавлен
+            return ResponseEntity.ok().build();
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // Или 400 Bad Request, если операция не удалась
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")

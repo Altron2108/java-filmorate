@@ -36,7 +36,7 @@ public class FilmController {
         Film createdFilm = filmService.createFilm(film);
         log.info("Фильм создан: {}", createdFilm);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdFilm);  // Возвращаем созданный объект
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdFilm);
     }
 
     @PutMapping
@@ -54,9 +54,8 @@ public class FilmController {
     @GetMapping("/{id}")
     public ResponseEntity<Film> getFilmById(@PathVariable int id) {
         return filmService.getFilmById(id)
-                .map(ResponseEntity::ok) // Если фильм найден, возвращаем его с 200 OK
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build()); // Если фильм не найден,
-        // возвращаем 404
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @DeleteMapping("/{id}")

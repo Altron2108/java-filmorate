@@ -53,23 +53,23 @@ class UserControllerTest {
 
         // Настроим ObjectMapper для сериализации
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule()); // Подключает поддержку LocalDate
+        objectMapper.registerModule(new JavaTimeModule());
 
         // Сериализуем объект User в JSON строку
         String userJson = objectMapper.writeValueAsString(user);
-        System.out.println("Serialized User JSON: " + userJson);  // Печать для отладки
+        System.out.println("Serialized User JSON: " + userJson);
 
         // Выполняем POST-запрос
         MvcResult result = mockMvc.perform(post("/users")
                         .contentType("application/json")
-                        .content(userJson)) // Используем сериализованный JSON
-                .andDo(print())  // Печать ответа для отладки
-                .andExpect(status().isOk())  // Проверка статуса Created
+                        .content(userJson))
+                .andDo(print())
+                .andExpect(status().isOk())
                 .andReturn();
 
         // Получаем содержимое ответа
         String responseContent = result.getResponse().getContentAsString();
-        System.out.println("Response Content: " + responseContent);  // Печать для отладки
+        System.out.println("Response Content: " + responseContent);
 
         // Проверяем, что ответ содержит ожидаемые значения
         assertTrue(responseContent.contains("user@example.com"), "Response does not contain 'user@example.com'")
@@ -112,14 +112,14 @@ class UserControllerTest {
 
         // Сериализация объекта User в JSON
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());  // Подключает поддержку LocalDate
+        objectMapper.registerModule(new JavaTimeModule());
 
         String userJson = objectMapper.writeValueAsString(user);
         System.out.println("Serialized User JSON: " + userJson);
 
         mockMvc.perform(put("/users")
                         .contentType("application/json")
-                        .content(userJson))  // Используем сериализованный JSON
+                        .content(userJson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("UpdatedUser"));
     }
@@ -153,7 +153,7 @@ class UserControllerTest {
 
         when(userService.getUserById(1L)).thenReturn(java.util.Optional.of(user1));
         when(userService.getUserById(2L)).thenReturn(java.util.Optional.of(user2));
-        when(userService.addFriend(1L, 2L)).thenReturn(true); // Мокируем результат добавления друга
+        when(userService.addFriend(1L, 2L)).thenReturn(true);
 
         mockMvc.perform(post("/users/1/friends/2"))
                 .andExpect(status().isOk());
@@ -167,7 +167,7 @@ class UserControllerTest {
         when(userService.getUserById(1L)).thenReturn(Optional.empty());
 
         mockMvc.perform(post("/users/1/friends/2"))
-                .andExpect(status().isNotFound()); // Ожидаем статус 404
+                .andExpect(status().isNotFound());
     }
 
     @Test
