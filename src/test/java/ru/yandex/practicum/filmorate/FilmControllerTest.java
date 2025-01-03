@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -103,5 +104,17 @@ class FilmControllerTest {
                         .content(invalidFilmJson))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void addLike_ShouldAddLikeToFilm() {
+        Film film = new Film("Film Title", "Description",
+                LocalDate.of(2020, 1, 1), 120);
+        film.setId(1L);
+
+        film.addLike(100L);
+
+        // Проверка, что лайк был добавлен
+        assertTrue(film.getLikes().contains(100L));
     }
 }

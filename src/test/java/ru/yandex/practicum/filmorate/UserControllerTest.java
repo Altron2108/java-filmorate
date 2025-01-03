@@ -15,8 +15,10 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -51,23 +53,23 @@ class UserControllerTest {
 
         // Настроим ObjectMapper для сериализации
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule()); // Подключает поддержку LocalDate
+        objectMapper.registerModule(new JavaTimeModule());
 
         // Сериализуем объект User в JSON строку
         String userJson = objectMapper.writeValueAsString(user);
-        System.out.println("Serialized User JSON: " + userJson);  // Печать для отладки
+        System.out.println("Serialized User JSON: " + userJson);
 
         // Выполняем POST-запрос
         MvcResult result = mockMvc.perform(post("/users")
                         .contentType("application/json")
-                        .content(userJson)) // Используем сериализованный JSON
-                .andDo(print())  // Печать ответа для отладки
-                .andExpect(status().isOk())  // Проверка статуса Created
+                        .content(userJson))
+                .andDo(print())
+                .andExpect(status().isOk())
                 .andReturn();
 
         // Получаем содержимое ответа
         String responseContent = result.getResponse().getContentAsString();
-        System.out.println("Response Content: " + responseContent);  // Печать для отладки
+        System.out.println("Response Content: " + responseContent);
 
         // Проверяем, что ответ содержит ожидаемые значения
         assertTrue(responseContent.contains("user@example.com"), "Response does not contain 'user@example.com'")
@@ -110,14 +112,14 @@ class UserControllerTest {
 
         // Сериализация объекта User в JSON
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());  // Подключает поддержку LocalDate
+        objectMapper.registerModule(new JavaTimeModule());
 
         String userJson = objectMapper.writeValueAsString(user);
         System.out.println("Serialized User JSON: " + userJson);
 
         mockMvc.perform(put("/users")
                         .contentType("application/json")
-                        .content(userJson))  // Используем сериализованный JSON
+                        .content(userJson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("UpdatedUser"));
     }
@@ -138,4 +140,54 @@ class UserControllerTest {
         mockMvc.perform(delete("/users/1"))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void addFriend_ShouldAddFriend() throws Exception {
+        User user1 = new User("user1@example.com", "user1login", "User1",
+                LocalDate.of(1990, 1, 1));
+        User user2 = new User("user2@example.com", "user2login", "User2",
+                LocalDate.of(1992, 2, 2));
+
+        user1.setId(1L);
+        user2.setId(2L);
+
+        when(userService.getUserById(1L)).thenReturn(java.util.Optional.of(user1));
+        when(userService.getUserById(2L)).thenReturn(java.util.Optional.of(user2));
+        when(userService.addFriend(1L, 2L)).thenReturn(true);
+
+        mockMvc.perform(post("/users/1/friends/2"))
+                .andExpect(status().isOk());
+
+        // Проверяем, что метод addFriend вызван
+        verify(userService).addFriend(1L, 2L);
+    }
+
+    @Test
+    void addFriend_ShouldReturnNotFound_WhenUserDoesNotExist() throws Exception {
+        when(userService.getUserById(1L)).thenReturn(Optional.empty());
+
+        mockMvc.perform(post("/users/1/friends/2"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void removeFriend_ShouldCallServiceAndReturnOk() throws Exception {
+        User user1 = new User("user1@example.com", "user1login", "User1",
+                LocalDate.of(1990, 1, 1));
+        User user2 = new User("user2@example.com", "user2login", "User2",
+                LocalDate.of(1992, 2, 2));
+
+        user1.setId(1L);
+        user2.setId(2L);
+
+        when(userService.getUserById(1L)).thenReturn(java.util.Optional.of(user1));
+        when(userService.getUserById(2L)).thenReturn(java.util.Optional.of(user2));
+
+        mockMvc.perform(delete("/users/1/friends/2"))
+                .andExpect(status().isOk());
+
+        // Проверка, что метод removeFriend вызван
+        verify(userService).removeFriend(1L, 2L);
+    }
+
 }

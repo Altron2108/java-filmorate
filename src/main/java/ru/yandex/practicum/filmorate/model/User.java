@@ -3,12 +3,14 @@ package ru.yandex.practicum.filmorate.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor // Генерирует конструктор по умолчанию
@@ -25,15 +27,30 @@ public class User {
 
     private String name;
 
-    @Past(message = "Дата рождения должна быть в прошлом")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") // Формат даты
+    @PastOrPresent(message = "Дата рождения должна быть в прошлом")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthday;
+
+    // Метод для установки друзей
+    // Метод для получения друзей (уже генерируется через @Data, оставлено для ясности)
+    private Set<Long> friends = new HashSet<>();
 
     // Конструктор с параметрами
     public User(String email, String login, String name, LocalDate birthday) {
         this.email = email;
         this.login = login;
-        this.name = name != null ? name : login; // если имя пустое, ставим логин
+        this.name = name != null && !name.isBlank() ? name : login;
         this.birthday = birthday;
     }
+
+    // Метод для добавления друга
+    public void addFriend(Long friendId) {
+        friends.add(friendId);
+    }
+
+    // Метод для удаления друга
+    public void removeFriend(Long friendId) {
+        friends.remove(friendId);
+    }
+
 }
